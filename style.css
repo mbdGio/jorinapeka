@@ -49,7 +49,7 @@ body {
 .game-info {
     display: flex;
     justify-content: space-between;
-    width: 350px;
+    width: 400px; /* Increased width */
     margin-bottom: 20px;
     font-size: 18px;
 }
