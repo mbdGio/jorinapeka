@@ -7,11 +7,10 @@ body {
 }
 
 #game-board {
-    display: grid;
-    grid-template-columns: repeat(7, 50px);
-    grid-template-rows: repeat(7, 50px);
+    width: 350px; /* 7 * 50px */
+    height: 350px; /* 7 * 50px */
     border: 2px solid #333;
-    position: relative; /* For positioning the moving pawn */
+    position: relative;
 }
 
 .pawn {
@@ -24,6 +23,8 @@ body {
     align-items: center;
     font-size: 24px;
     cursor: pointer;
+    position: absolute;
+    transition: top 0.3s ease-out, left 0.3s ease-out;
 }
 
 .pawn.colored {
@@ -42,14 +43,13 @@ body {
     position: absolute;
     background-color: #fff;
     z-index: 10;
-    transition: top 0.4s linear, left 0.4s linear; /* Slower animation */
+    transition: top 0.4s linear, left 0.4s linear;
 }
-
 
 .game-info {
     display: flex;
     justify-content: space-between;
-    width: 400px; /* Increased width */
+    width: 400px;
     margin-bottom: 20px;
     font-size: 18px;
 }

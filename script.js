@@ -5,7 +5,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const levelValue = document.getElementById('level-value');
 
     const gridSize = 7;
+    const pawnSize = 50;
     let board = [];
+    let coloredPositions = [];
     let score = 0;
     let moves = 5;
     let level = 1;
@@ -25,11 +27,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             this.element.innerHTML = this.direction;
             this.element.addEventListener('click', () => handlePawnClick(this));
+            positionPawn(this);
+            gameBoard.appendChild(this.element);
         }
+    }
+
+    function positionPawn(pawn) {
+        pawn.element.style.top = `${pawn.row * pawnSize}px`;
+        pawn.element.style.left = `${pawn.col * pawnSize}px`;
     }
 
     function initBoard() {
         board = [];
+        coloredPositions = [];
         gameBoard.innerHTML = '';
         let coloredPawnsToCreate = 2 + level;
         const totalPawns = gridSize * gridSize;
@@ -43,11 +53,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const c = i % gridSize;
             if (!board[r]) {
                 board[r] = [];
+                coloredPositions[r] = [];
             }
             const isColored = coloredPawnIndices.has(i);
+            coloredPositions[r][c] = isColored;
             const pawn = new Pawn(r, c, isColored);
             board[r][c] = pawn;
-            gameBoard.appendChild(pawn.element);
         }
     }
 
@@ -65,11 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const movingPawn = document.createElement('div');
         movingPawn.classList.add('moving-pawn');
         movingPawn.innerHTML = currentDirection;
-        movingPawn.style.top = `${currentRow * 50}px`;
-        movingPawn.style.left = `${currentCol * 50}px`;
+        movingPawn.style.top = `${currentRow * pawnSize}px`;
+        movingPawn.style.left = `${currentCol * pawnSize}px`;
         gameBoard.appendChild(movingPawn);
 
         board[currentRow][currentCol].element.style.visibility = 'hidden';
+        if (board[currentRow][currentCol].isColored) {
+            coloredPositions[currentRow][currentCol] = false;
+        }
         board[currentRow][currentCol] = null;
 
         function move() {
@@ -83,8 +97,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 case '→': nextCol++; break;
             }
 
-            movingPawn.style.top = `${nextRow * 50}px`;
-            movingPawn.style.left = `${nextCol * 50}px`;
+            movingPawn.style.top = `${nextRow * pawnSize}px`;
+            movingPawn.style.left = `${nextCol * pawnSize}px`;
 
             setTimeout(() => {
                 if (nextRow < 0 || nextRow >= gridSize || nextCol < 0 || nextCol >= gridSize) {
@@ -102,7 +116,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     currentDirection = nextPawn.direction;
                     movingPawn.innerHTML = currentDirection;
-                    board[nextRow][nextCol].element.style.visibility = 'hidden';
+                    nextPawn.element.style.visibility = 'hidden';
+                    if (nextPawn.isColored) {
+                        coloredPositions[nextRow][nextCol] = false;
+                    }
                     board[nextRow][nextCol] = null;
                     currentRow = nextRow;
                     currentCol = nextCol;
@@ -118,49 +135,74 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateBoard(chainLength = 0) {
-        const clearedPawns = chainLength + 1; // The eaten pawns + the first pawn
+        const clearedPawns = chainLength + 1;
         const bonusMoves = Math.floor(clearedPawns / 10);
         if (bonusMoves > 0) {
             moves += bonusMoves;
             movesValue.textContent = moves;
         }
 
-        // Gravity
+        // Gravity with animation
         for (let c = 0; c < gridSize; c++) {
             let emptyRow = gridSize - 1;
             for (let r = gridSize - 1; r >= 0; r--) {
                 if (board[r][c]) {
                     if (emptyRow !== r) {
-                        board[emptyRow][c] = board[r][c];
+                        const pawnToMove = board[r][c];
+                        board[emptyRow][c] = pawnToMove;
                         board[r][c] = null;
-                        board[emptyRow][c].row = emptyRow;
+                        pawnToMove.row = emptyRow;
+
+                        // Immediately update color based on the destination
+                        const isNowColored = coloredPositions[emptyRow][c];
+                        pawnToMove.isColored = isNowColored;
+                        if (isNowColored) {
+                            pawnToMove.element.classList.add('colored');
+                        } else {
+                            pawnToMove.element.classList.remove('colored');
+                        }
+
+                        positionPawn(pawnToMove);
                     }
                     emptyRow--;
                 }
             }
         }
 
-        // Refill
-        for (let r = 0; r < gridSize; r++) {
-            for (let c = 0; c < gridSize; c++) {
-                if (!board[r][c]) {
-                    const pawn = new Pawn(r, c, false); // New pawns are not colored
-                    board[r][c] = pawn;
+        // Refill after a delay
+        setTimeout(() => {
+            for (let r = 0; r < gridSize; r++) {
+                for (let c = 0; c < gridSize; c++) {
+                    if (!board[r][c]) {
+                        const isColored = coloredPositions[r][c];
+                        const pawn = new Pawn(r, c, isColored);
+                        board[r][c] = pawn;
+                        // Animate new pawns falling from the top
+                        pawn.element.style.top = `-${pawnSize}px`;
+                        setTimeout(() => positionPawn(pawn), 10);
+                    }
                 }
             }
-        }
-        renderBoard();
-        checkLevelComplete();
+            renderBoard();
+            checkLevelComplete();
+        }, 300); // Delay to allow falling animation to finish
     }
 
     function renderBoard() {
-        gameBoard.innerHTML = '';
+        // The board is now rendered as pawns are created and moved
+        // This function can be used for any additional rendering needs
+        // but for now, we will just update the colors
         for (let r = 0; r < gridSize; r++) {
             for (let c = 0; c < gridSize; c++) {
                 if(board[r][c]) {
                     const pawn = board[r][c];
-                    pawn.element.style.visibility = 'visible';
-                    gameBoard.appendChild(pawn.element);
+                    if (coloredPositions[r][c]) {
+                        pawn.element.classList.add('colored');
+                        pawn.isColored = true;
+                    } else {
+                        pawn.element.classList.remove('colored');
+                        pawn.isColored = false;
+                    }
                 }
             }
         }
