@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handlePawnClick(pawn) {
-        if (moves <= 0) return;
+        if (pawn.isColored || moves <= 0) return;
 
         moves--;
         movesValue.textContent = moves;
@@ -72,6 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentRow = pawn.row;
         let currentCol = pawn.col;
         let currentDirection = pawn.direction;
+        const clearedPawns = [];
 
         const movingPawn = document.createElement('div');
         movingPawn.classList.add('moving-pawn');
@@ -80,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
         movingPawn.style.left = `${currentCol * pawnSize}px`;
         gameBoard.appendChild(movingPawn);
 
+        clearedPawns.push(board[currentRow][currentCol]);
         board[currentRow][currentCol].element.style.visibility = 'hidden';
         if (board[currentRow][currentCol].isColored) {
             coloredPositions[currentRow][currentCol] = false;
@@ -103,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             setTimeout(() => {
                 if (nextRow < 0 || nextRow >= gridSize || nextCol < 0 || nextCol >= gridSize) {
                     movingPawn.remove();
-                    updateBoard(chain);
+                    updateBoard(clearedPawns);
                     return;
                 }
 
@@ -114,6 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     score += chain;
                     scoreValue.textContent = score;
 
+                    clearedPawns.push(nextPawn);
                     currentDirection = nextPawn.direction;
                     movingPawn.innerHTML = currentDirection;
                     nextPawn.element.style.visibility = 'hidden';
@@ -134,9 +137,8 @@ document.addEventListener('DOMContentLoaded', () => {
         setTimeout(move, 10);
     }
 
-    function updateBoard(chainLength = 0) {
-        const clearedPawns = chainLength + 1;
-        const bonusMoves = Math.floor(clearedPawns / 10);
+    function updateBoard(clearedPawns = []) {
+        const bonusMoves = Math.floor(clearedPawns.length / 10);
         if (bonusMoves > 0) {
             moves += bonusMoves;
             movesValue.textContent = moves;
