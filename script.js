@@ -217,13 +217,23 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkLevelComplete() {
         const coloredPawns = board.flat().filter(pawn => pawn && pawn.isColored);
         if (coloredPawns.length === 0) {
-            score += (moves + 1) * 10;
+            const bonusPoints = (moves + 1) * 10;
+            score += bonusPoints;
             scoreValue.textContent = score;
-            level++;
-            moves = 5;
-            levelValue.textContent = level;
-            movesValue.textContent = moves;
-            initBoard();
+
+            const bonusOverlay = document.getElementById('bonus-overlay');
+            const bonusMessage = document.getElementById('bonus-message');
+            bonusMessage.innerHTML = `BONUS POINTS: ${bonusPoints}`;
+            bonusOverlay.style.display = 'block';
+
+            setTimeout(() => {
+                bonusOverlay.style.display = 'none';
+                level++;
+                moves = 5;
+                levelValue.textContent = level;
+                movesValue.textContent = moves;
+                initBoard();
+            }, 2000); // Corresponds to the animation duration
         }
     }
 
