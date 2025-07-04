@@ -217,6 +217,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function checkLevelComplete() {
         const coloredPawns = board.flat().filter(pawn => pawn && pawn.isColored);
         if (coloredPawns.length === 0) {
+            score += (moves + 1) * 10;
+            scoreValue.textContent = score;
             level++;
             moves = 5;
             levelValue.textContent = level;
