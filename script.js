@@ -68,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
         moves--;
         movesValue.textContent = moves;
 
-        let chain = 0;
+        let scoreMultiplier = 1;
         let currentRow = pawn.row;
         let currentCol = pawn.col;
         let currentDirection = pawn.direction;
@@ -112,8 +112,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const nextPawn = board[nextRow][nextCol];
 
                 if (nextPawn) {
-                    chain++;
-                    score += chain;
+                    if (nextPawn.isColored) {
+                        score += 5 * scoreMultiplier;
+                        scoreMultiplier *= 2;
+                    } else {
+                        score += 1 * scoreMultiplier;
+                    }
                     scoreValue.textContent = score;
 
                     clearedPawns.push(nextPawn);
