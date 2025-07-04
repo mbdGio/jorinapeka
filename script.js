@@ -126,6 +126,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     displayFloatingPoints(pointsGained);
 
                     clearedPawns.push(nextPawn);
+                    // Check for bonus moves every 10 cleared pawns
+                    if (clearedPawns.length > 0 && clearedPawns.length % 10 === 0) {
+                        moves += 1;
+                        movesValue.textContent = moves;
+                        displayFloatingMoves(1);
+                    }
+
                     currentDirection = nextPawn.direction;
                     movingPawn.innerHTML = currentDirection;
                     nextPawn.element.style.visibility = 'hidden';
@@ -162,12 +169,24 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function displayFloatingMoves(amount) {
+        const floatingMoves = document.createElement('div');
+        floatingMoves.classList.add('floating-points'); // Reusing the same animation class
+        floatingMoves.textContent = `+${amount}`;
+        floatingMoves.style.color = 'blue'; // Differentiate from points
+
+        const movesRect = movesValue.getBoundingClientRect();
+        floatingMoves.style.left = `${movesRect.right}px`;
+        floatingMoves.style.top = `${movesRect.top}px`;
+
+        document.body.appendChild(floatingMoves);
+
+        floatingMoves.addEventListener('animationend', () => {
+            floatingMoves.remove();
+        });
+    }
+
     function updateBoard(clearedPawns = []) {
-        const bonusMoves = Math.floor(clearedPawns.length / 10);
-        if (bonusMoves > 0) {
-            moves += bonusMoves;
-            movesValue.textContent = moves;
-        }
 
         // Gravity with animation
         for (let c = 0; c < gridSize; c++) {
