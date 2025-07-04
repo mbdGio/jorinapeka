@@ -114,13 +114,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 const nextPawn = board[nextRow][nextCol];
 
                 if (nextPawn) {
+                    let pointsGained;
                     if (nextPawn.isColored) {
-                        score += 5 * scoreMultiplier;
+                        pointsGained = 5 * scoreMultiplier;
                         scoreMultiplier *= 2;
                     } else {
-                        score += 1 * scoreMultiplier;
+                        pointsGained = 1 * scoreMultiplier;
                     }
+                    score += pointsGained;
                     scoreValue.textContent = score;
+                    displayFloatingPoints(pointsGained);
 
                     clearedPawns.push(nextPawn);
                     currentDirection = nextPawn.direction;
@@ -141,6 +144,22 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 400);
         }
         setTimeout(move, 10);
+    }
+
+    function displayFloatingPoints(points) {
+        const floatingPoints = document.createElement('div');
+        floatingPoints.classList.add('floating-points');
+        floatingPoints.textContent = `+${points}`;
+
+        const scoreRect = scoreValue.getBoundingClientRect();
+        floatingPoints.style.left = `${scoreRect.right}px`;
+        floatingPoints.style.top = `${scoreRect.top}px`;
+
+        document.body.appendChild(floatingPoints);
+
+        floatingPoints.addEventListener('animationend', () => {
+            floatingPoints.remove();
+        });
     }
 
     function updateBoard(clearedPawns = []) {
