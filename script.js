@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let score = 0;
     let moves = 5;
     let level = 1;
+    let isChainActive = false;
 
     const directions = ['↑', '↓', '←', '→'];
 
@@ -63,8 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handlePawnClick(pawn) {
-        if (pawn.isColored || moves <= 0) return;
+        if (pawn.isColored || moves <= 0 || isChainActive) return;
 
+        isChainActive = true;
         moves--;
         movesValue.textContent = moves;
 
@@ -191,6 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             renderBoard();
             checkLevelComplete();
+            isChainActive = false;
         }, 300); // Delay to allow falling animation to finish
     }
 
