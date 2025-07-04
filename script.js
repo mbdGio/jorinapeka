@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handlePawnClick(pawn) {
-        if (pawn.isColored || moves <= 0 || isChainActive) return;
+        if (pawn.isColored || isChainActive) return;
 
         isChainActive = true;
         moves--;
@@ -232,6 +232,10 @@ document.addEventListener('DOMContentLoaded', () => {
             renderBoard();
             checkLevelComplete();
             isChainActive = false;
+
+            if (moves <= 0 && board.flat().filter(pawn => pawn && pawn.isColored).length > 0) {
+                document.getElementById('game-over-overlay').style.display = 'flex';
+            }
         }, 300); // Delay to allow falling animation to finish
     }
 
